@@ -1,0 +1,257 @@
+#include <iostream>
+#include <cstdlib>
+#include <cstring>
+#include <ctime>
+using namespace std;
+
+struct abcd {
+  int a, b, c, d;
+	void Gen() {
+		a = rand()%400 +100;
+		b = rand()%400 +100;
+		c = rand()%6 +1;
+		if(c==6) d=3; else d=rand()%4+1;
+	}
+	void Ispis() {
+		cout << a << "  " << b << "  ";
+		switch(c) { case 1: cout << "Umirovljenici (1)          "; break;
+					case 2: cout << "Invalidi (2)               "; break;
+					case 3: cout << "Trudnice (3)               "; break;
+					case 4: cout << "VIP klijenti banke (4)     "; break;
+					case 5: cout << "Ostali klijenti banke (5)  "; break;
+					case 6: cout << "Nisu klijenti banke (6)    "; break;
+		}
+		switch(d) { case 1: cout << "Uplata (1)" << endl; break;
+					case 2: cout << "Isplata (2)" << endl; break;
+					case 3: cout << "Placanje racuna (3)" << endl; break;
+					case 4: cout << "Krediti (4)" << endl; break;
+		}
+	}
+};
+struct datum { int d, m, g; };
+struct klijent {
+	char ime[90];
+	datum dr;
+	float tek, dev;
+	abcd s;
+	void Unos(abcd cet);
+	void Ispis();
+};
+
+void klijent::Unos(abcd cet) {
+	cin.ignore();
+	s = cet;
+	cout << "a: " << s.a << "     b: " << s.b << endl;
+	cout << "Prioritet: ";
+	switch(s.c) { 	case 1: cout << "Umirovljenici (1)" << endl; break;
+					case 2: cout << "Invalidi (2)" << endl; break;
+					case 3: cout << "Trudnice (3)" << endl; break;
+					case 4: cout << "VIP klijenti banke (4)" << endl; break;
+					case 5: cout << "Ostali klijenti banke (5)" << endl; break;
+					case 6: cout << "Nisu klijenti banke (6)" << endl; break;
+	}
+	cout << "Vrsta transakcije: ";
+	switch(s.d) { 	case 1: cout << "Uplata (1)" << endl; break;
+					case 2: cout << "Isplata (2)" << endl; break;
+					case 3: cout << "Placanje racuna (3)" << endl; break;
+					case 4: cout << "Krediti (4)" << endl; break;
+	}
+	cout << "Ime i prezime: "; cin.getline(ime, 50);
+	cout << "Datum rodjenja(dd mm gggg): "; cin >> dr.d >> dr.m >> dr.g;
+	cout << "Stanje na tekucem: "; cin >> tek;
+	cout << "Stanje na deviznom: "; cin >> dev;
+}
+void klijent::Ispis() {
+	cout << "a: " << s.a << "     b: " << s.b << endl;
+	cout << "Prioritet: ";
+	switch(s.c) { 	case 1: cout << "Umirovljenici (1)" << endl; break;
+					case 2: cout << "Invalidi (2)" << endl; break;
+					case 3: cout << "Trudnice (3)" << endl; break;
+					case 4: cout << "VIP klijenti banke (4)" << endl; break;
+					case 5: cout << "Ostali klijenti banke (5)" << endl; break;
+					case 6: cout << "Nisu klijenti banke (6)" << endl; break;
+	}
+	cout << "Vrsta transakcije: ";
+	switch(s.d) { 	case 1: cout << "Uplata (1)" << endl; break;
+					case 2: cout << "Isplata (2)" << endl; break;
+					case 3: cout << "Placanje racuna (3)" << endl; break;
+					case 4: cout << "Krediti (4)" << endl; break;
+	}
+	cout << "Ime i prezime: " << ime << endl;
+	cout << "Datum rodjenja(dd mm gggg): " << dr.d << '.' << dr.m << '.' << dr.g << '.' << endl;
+	cout << "Stanje na tekucem: " << tek << endl;
+	cout << "Stanje na deviznom: " << dev << endl;
+	cout << endl;
+}
+
+#include "pok.h"
+//#include "polje.h"
+
+red* NoviRed() { red* novi=new red; InitQ(novi); return novi; }
+void Prebaci(red* Q, red* Q2) { EnQueueQ(FrontQ(Q), Q2); DeQueueQ(Q); }
+
+void IspisReda(red* Q) {
+	if(IsEmptyQ(Q) ) { cout<<"Red je prazan."<<endl; return; }
+	red* pomocni = NoviRed();
+	while(!IsEmptyQ(Q) ) { 
+           FrontQ(Q).Ispis(); Prebaci(Q, pomocni); 
+           }
+	while(!IsEmptyQ(pomocni) ) 
+         Prebaci(pomocni, Q);
+	delete pomocni;
+}
+void IspisReda_10000kn(red* Q) {
+	if(IsEmptyQ(Q) ) { cout<<"Red je prazan."<<endl; return; }
+	red* pomocni = NoviRed();
+	while(!IsEmptyQ(Q) ) {
+		if(FrontQ(Q).dev>10000) FrontQ(Q).Ispis();
+		Prebaci(Q, pomocni);
+	}
+	while(!IsEmptyQ(pomocni) ) Prebaci(pomocni, Q);
+	delete pomocni;
+}
+
+void DodajNovogKlijenta(red* Q, abcd* cet, int& br4, int n4) {
+	klijent kl;
+	kl.Unos(cet[br4]);
+	br4 = ++br4%n4;
+	EnQueueQ(kl, Q);
+}
+void SortirajKlijente(red* Q) {
+	if(IsEmptyQ(Q) ) return;
+	red* pomocni = NoviRed();
+	red* novi_red = NoviRed();
+	for(int i=1; i<7; i++) {
+		while(!IsEmptyQ(Q) )
+			if(FrontQ(Q).s.c==i) Prebaci(Q, novi_red); else Prebaci(Q, pomocni);
+		while(!IsEmptyQ(pomocni) ) Prebaci(pomocni, Q);
+	}
+	while(!IsEmptyQ(novi_red) ) Prebaci(novi_red, Q);
+	delete pomocni; delete novi_red;
+}
+void DodavanjeKlijenata(red* Q, abcd* cet, int& br4, int n4) { 
+	int N;
+	cout << "Broj klijenata: "; cin >> N;
+	for(int i=0; i<N; cout<<endl, i++) DodajNovogKlijenta(Q, cet, br4, n4);
+	SortirajKlijente(Q);
+	cout << "Ispis klijenata koji imaju vise od 10.000kn na deviznom racunu" << endl;
+	IspisReda_10000kn(Q);
+}
+
+abcd* GenerirajCetvorke(int& n4) { 
+	do { 
+         cout << "Broj cetvorki (min: 1): "; cin >> n4; 
+         } while(n4<1);
+	abcd* cet = new abcd[n4];
+	for(int i=0; i<n4; i++) cet[i].Gen();
+	for(int i=0; i<n4; i++) cet[i].Ispis();
+	return cet;
+}
+
+void RedBrzihTransakcija(red* Q) {
+	if(IsEmptyQ(Q) ) {
+                    cout<<"Glavni red je prazan."<<endl; return; }
+	red* pomocni = NoviRed();
+	red* brzi_red = NoviRed();
+	while(!IsEmptyQ(Q) )
+		if(FrontQ(Q).s.d==3) Prebaci(Q, brzi_red); 
+        else Prebaci(Q, pomocni);
+	while(!IsEmptyQ(pomocni) ) Prebaci(pomocni, Q);
+	cout << "Brzi red" << endl;
+	IspisReda(brzi_red);
+	while(!IsEmptyQ(brzi_red) ) DeQueueQ(brzi_red);
+	delete brzi_red;
+	cout << endl << "Glavni red" << endl;
+	IspisReda(Q);
+	delete pomocni;
+}
+
+void GlavniRed_Brisanje(red* Q) {
+	if(IsEmptyQ(Q) ) { cout<<"Glavni red je prazan."<<endl; return; }
+	red* pomocni = NoviRed();
+	while(!IsEmptyQ(Q) )
+		if(FrontQ(Q).s.c==4 && FrontQ(Q).s.d==1 && FrontQ(Q).dr.g>1982 && FrontQ(Q).tek<100) DeQueueQ(Q);
+		else if(FrontQ(Q).s.c==1 && FrontQ(Q).s.d==2 && (FrontQ(Q).tek+FrontQ(Q).dev)>5000) DeQueueQ(Q);
+		else Prebaci(Q, pomocni);
+	while(!IsEmptyQ(pomocni) ) Prebaci(pomocni, Q);
+	delete pomocni;
+	cout << "Glavni red" << endl;
+	IspisReda(Q);
+}
+
+int PrebrojiRed(red* Q) {
+	if(IsEmptyQ(Q) ) return 0;
+	int broj_klijenata = 0;
+	red* pomocni = NoviRed();
+	while(!IsEmptyQ(Q) ) { 
+                       broj_klijenata++; Prebaci(Q, pomocni); }
+	while(!IsEmptyQ(pomocni) ) Prebaci(pomocni, Q);
+	delete pomocni;
+	return broj_klijenata;
+}
+
+int Posto70(red* Q) { 
+    return (PrebrojiRed(Q) * (7.0/10.0) ); }
+
+void OtvaranjeNovogSaltera(red* Q, int br70, int n, red* novi_salter, int brojac=0) {
+	if(brojac>=n) return;
+	if(brojac>br70) {
+		klijent pom = FrontQ(Q);
+		DeQueueQ(Q);
+		OtvaranjeNovogSaltera(Q, br70, n, novi_salter, ++brojac);
+		EnQueueQ(pom, novi_salter);
+	} else {
+		Prebaci(Q, Q);
+		OtvaranjeNovogSaltera(Q, br70, n, novi_salter, ++brojac);
+	}
+}
+
+void NoviSalter(red* Q) {
+	red* novi_salter = NoviRed();
+	if(IsEmptyQ(Q) ) { cout<<"Glavni red je prazan."<<endl; return; }
+	OtvaranjeNovogSaltera(Q, Posto70(Q), PrebrojiRed(Q), novi_salter);
+	cout << "Novi red:" << endl;
+	IspisReda(novi_salter);
+	cout << endl << "Glavni red:" << endl;
+	IspisReda(Q);
+}
+
+void IspisGlavnogReda(red* Q) { cout << "Glavni red" << endl; IspisReda(Q); }
+
+void Pocetak() {
+	srand(time(0) ); rand();
+	red* Q = NoviRed();
+	int n4, br4=0;
+	abcd* polje = GenerirajCetvorke(n4);
+	cout << endl;
+	int izb;
+	do {
+		cout << "---------------------------------------------------" << endl;
+		cout << "Izbornik" << endl;
+		cout << " 1. Dodavanje novih klijenta" << endl;
+		cout << " 2. Ispis reda" << endl;
+		cout << " 3. Red brzih transakcija" << endl;
+		cout << " 4. Brisanje iz glavnog reda" << endl;
+		cout << " 5. Otvaranje novog saltera" << endl;
+		cout << " 9. Izlaz iz programa" << endl;
+		cout << "Odabir: ";
+		cin >> izb;
+		cout << "---------------------------------------------------" << endl;
+		cout << endl;
+		switch(izb) { 	case 1: DodavanjeKlijenata(Q, polje, br4, n4); break;
+						case 2: IspisGlavnogReda(Q); break;
+						case 3: RedBrzihTransakcija(Q); break;
+						case 4: GlavniRed_Brisanje(Q); break;
+						case 5: NoviSalter(Q); break;
+						case 9: break; 
+						default: cout << "Pogresan unos." << endl;
+		}
+		cout << endl;
+	} while(izb!=9);
+	delete[] polje;
+	while(!IsEmptyQ(Q) ) DeQueueQ(Q);
+	delete Q;
+}
+
+int main() { Pocetak(); return 0; }
+
