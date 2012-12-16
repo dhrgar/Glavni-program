@@ -1,0 +1,33 @@
+#ifndef POK_H
+#define POK_H
+
+struct qu {
+  klijent k;
+	qu *sljedeci;
+};
+struct que { qu *front, *rear; };
+typedef qu element;
+typedef que red;
+
+klijent FrontQ(red *Q) { 
+return Q->front->sljedeci->k;
+}
+void EnQueueQ(klijent x, red *Q) {
+	Q->rear = (Q->rear->sljedeci = new element);
+	Q->rear->sljedeci = NULL;
+	Q->rear->k = x;
+}
+void DeQueueQ(red *Q) {
+	element *pom = Q->front;
+	Q->front = pom->sljedeci;
+	delete pom;
+}
+void InitQ(red *Q) { 
+     Q->rear = (Q->front = new element);
+      }
+bool IsEmptyQ(red *Q) { 
+     if(Q->rear==Q->front) return true; return false;
+      }
+
+#endif 
+
