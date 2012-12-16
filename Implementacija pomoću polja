@@ -1,0 +1,32 @@
+#ifndef POLJE_H
+#define POLJE_H
+
+typedef int element;
+struct qu {
+  klijent elementi[1000];
+	element front, rear;
+};
+typedef qu red;
+
+int AddOne(int n) {
+     return((n+1)%1000);
+      }
+
+klijent FrontQ(red *Q) { 
+        return Q->elementi[Q->front];
+         }
+void EnQueueQ(klijent x, red *Q) {
+      Q->elementi[Q->rear=AddOne(Q->rear)]=x;
+       }
+void DeQueueQ(red *Q) {
+      Q->front = AddOne(Q->front);
+       }
+void InitQ(red *Q) {
+      Q->front=0; Q->rear=999;
+       }
+bool IsEmptyQ(red *Q) {
+      if(AddOne(Q->rear)==Q->front) return true; return false; }
+
+#endif 
+
+
